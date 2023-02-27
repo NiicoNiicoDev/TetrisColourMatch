@@ -42,9 +42,12 @@ void APieceController::MoveRight()
 {
 	for (size_t i = 0; i < 4; i++)
 	{
-		if (block[i]->currentColumn > 9)
+		if (block[i]->currentColumn < 9)
 			return;
-		
+	}
+	
+	for (size_t i = 0; i < 4; i++)
+	{
 		if (gameHandler->playField[block[i]->currentRow][block[i]->currentColumn + 1].piece 
 			== nullptr && block[i] != nullptr) 
 		{
@@ -55,10 +58,14 @@ void APieceController::MoveRight()
 
 void APieceController::MoveLeft()
 {
-	for (size_t i = 4; i > 0; i--)
+	for (size_t i = 0; i < 4; i++)
 	{
-		if (block[i]->currentColumn < 0)
+		if (block[i]->currentColumn <= 0)
 			return;
+	}
+	
+	for (size_t i = 0; i < 4; i++)
+	{
 		
 		if (gameHandler->playField[block[i]->currentRow][block[i]->currentColumn - 1].piece
 			== nullptr && block[i] != nullptr)
