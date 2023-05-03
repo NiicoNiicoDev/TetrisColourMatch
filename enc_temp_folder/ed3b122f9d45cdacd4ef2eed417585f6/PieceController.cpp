@@ -148,13 +148,14 @@ void APieceController::RotateLeft()
 
 void APieceController::QuickDropPressed() 
 {
+	previousDropSpeed = gameHandler->moveDownFrequency;
 	gameHandler->moveDownFrequency = 0.05f;
 	gameHandler->bIsFastDrop = true;
 }
 
 void APieceController::QuickDropReleased()
 {
-	gameHandler->moveDownFrequency = 0.9 - (gameHandler->currentLevel * 0.03);
+	gameHandler->moveDownFrequency = previousDropSpeed;
 	gameHandler->bIsFastDrop = false;
 }
 

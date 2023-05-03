@@ -108,9 +108,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	uint8 currentLevel = 1;
 
-	UPROPERTY(EditAnywhere)
-		uint16 LinesToClearPerLevel[28];
-
 	APieceController* pieceController;
 
 	pieceContainer playField[20][10];
@@ -152,8 +149,6 @@ public:
 	void InitalizeRotationArrays();
 
 	void UpdateScore(int linesCleared, int multiplier);
-
-	void IncreaseDifficulty();
 
 	void CheckPieceDataMismatch();
 

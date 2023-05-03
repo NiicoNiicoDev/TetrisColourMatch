@@ -37,9 +37,13 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool isPlaced = false;
 
-	bool bDoTick = false;
+	bool bCanMoveDown = true;
 
-	float currentTime;
+	UPROPERTY(EditAnywhere)
+	float currentTime = 0;
+
+	UPROPERTY(EditAnywhere)
+	float blockPlaceTimer = 0;
 
 	bool standardMovement = true;
 

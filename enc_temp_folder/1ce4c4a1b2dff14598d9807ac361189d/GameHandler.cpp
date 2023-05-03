@@ -147,8 +147,6 @@ void AGameHandler::CheckFullRow()
 {
 	int rowsToMove = 0;
 	int rowIndexToMoveFrom = 0;
-
-	bool bIsColourMatch = true;
 	
 	for (int i = 19; i >= 0; i--)
 	{
@@ -156,13 +154,7 @@ void AGameHandler::CheckFullRow()
 
 		for (int j = 0; j < 10; j++)
 		{ 
-			if (j != 9) 
-			{
-				if (playField[i][j].Colour != playField[i][j + 1].Colour)
-				{
-					bIsColourMatch = false;
-				}
-			}
+			
 			if (playField[i][j].isPlaced)
 			{
 				filledSpaces++;
@@ -201,16 +193,7 @@ void AGameHandler::CheckFullRow()
 
 	if (rowsToMove > 0) {
 		MovePlayfield(rowsToMove, rowIndexToMoveFrom);
-		
-		if (bIsColourMatch) 
-		{
-			UpdateScore(rowsToMove, 4);
-		}
-		else 
-		{
-			UpdateScore(rowsToMove, 1);
-		}
-		
+		UpdateScore(rowsToMove, 1);
 	}
 }
 
@@ -293,22 +276,8 @@ void AGameHandler::UpdateScore(int linesCleared, int multiplier)
 		break;
 	}
 
-	for (int var : LinesToClearPerLevel)
-	{
-		if (totalLinesCleared == var) 
-		{
-			currentLevel += 1;
-			IncreaseDifficulty();
-		}
-	}
-
 	FString scoreString = "Current Score: " + FString::FromInt(currentScore);
 	textComp->SetText(FText::FromString(scoreString));
-}
-
-void AGameHandler::IncreaseDifficulty() 
-{
-	moveDownFrequency = 0.9 - (currentLevel * 0.03);
 }
 
 void AGameHandler::BlockShift(int columnShift, int rowShift)

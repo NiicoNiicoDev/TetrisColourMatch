@@ -32,6 +32,8 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 		float quickDropSpeed = 0.05f;
+
+	float previousDropSpeed = 0;
 	
 	void MoveRight();
 	void MoveLeft();

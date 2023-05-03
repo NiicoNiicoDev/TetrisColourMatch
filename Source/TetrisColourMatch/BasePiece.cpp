@@ -22,6 +22,9 @@ ABasePiece::ABasePiece()
 		CubeVisual->SetWorldScale3D(FVector(1.0f));
 	}
 
+	blockPlaceTimer = 0;
+	bCanMoveDown = true;
+
 	currentRow = spawnRow;
 	currentColumn = spawnColumn;
 }
@@ -40,7 +43,7 @@ void ABasePiece::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!gameHandler->bGameOver && bDoTick)
+	if (!gameHandler->bGameOver)
 	{
 		FVector targetLocation = FVector(0, currentColumn * 100, 2000 - ((currentRow) * 100));
 
@@ -54,11 +57,25 @@ void ABasePiece::Tick(float DeltaTime)
 			currentTime += DeltaTime;
 			if (CheckPieceIndex() == 2)
 			{
-				PlaceBlock();
+				bCanMoveDown = false;
+				currentTime = 0;
 
-				return;
+				if (gameHandler->bIsFastDrop) 
+				{
+					PlaceBlock();
+				}
+				else 
+				{
+					bCanMoveDown = false;
+					blockPlaceTimer += DeltaTime;
+
+					if (blockPlaceTimer >= 0.1) {
+						PlaceBlock();
+						blockPlaceTimer = 0;
+					}
+				}	
 			} 
-			else if (currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
+			else if (bCanMoveDown && currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
 			{
 				DownMovement();
 				currentTime = 0.0f;
@@ -87,7 +104,6 @@ int ABasePiece::CheckPieceIndex()
 	{
 		if (gameHandler->pieceController->block[i]->isPlaced)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[%s] : [%d]"), *this->GetName(), i);
 			return 2;
 		}
 	}
