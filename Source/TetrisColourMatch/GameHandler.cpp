@@ -132,24 +132,23 @@ void AGameHandler::SetPositionActive(ABasePiece* piece, int row, int column)
 	playField[row][column].piece = piece;
 	playField[row][column].isPlaced = true;
 
+	placePiecesThisTetrominoe += 1;
 
-	pieceController->block = nullptr;
+	UE_LOG(LogTemp, Log, TEXT("placePiecesThisTetrominoe = %d"), placePiecesThisTetrominoe);
 
-	if (pieceController->block == nullptr)
+	if (placePiecesThisTetrominoe == 4 && pieceController->block != nullptr)
+	{
+		pieceController->block = nullptr;
 		GenerateNewBlock();
 
-	CheckFullRow();
-
-	placePiecesThisTetrominoe = 0;
-	
+		CheckFullRow();
+	}
 }
 
 void AGameHandler::CheckFullRow()
 {
 	int rowsToMove = 0;
 	int rowIndexToMoveFrom = 0;
-
-	bool bIsColourMatch = true;
 	
 	for (int i = 19; i >= 0; i--)
 	{
@@ -160,13 +159,6 @@ void AGameHandler::CheckFullRow()
 			
 			if (playField[i][j].isPlaced)
 			{
-				if (j != 9) {
-
-					if (playField[i][j].Colour == playField[i][j + 1].Colour) 
-					{
-						bIsColourMatch = false;
-					}
-				}
 				filledSpaces++;
 			}
 
@@ -203,18 +195,8 @@ void AGameHandler::CheckFullRow()
 
 	if (rowsToMove > 0) {
 		MovePlayfield(rowsToMove, rowIndexToMoveFrom);
-
-		if (bIsColourMatch) 
-		{
-			UpdateScore(rowsToMove, 4);
-		}
-		else 
-		{
-			UpdateScore(rowsToMove, 1);
-		}
+		UpdateScore(rowsToMove, 1);
 	}
-		
-
 }
 
 void AGameHandler::MovePlayfield(int rowsToMove, int rowIndexToMoveFrom)
@@ -413,6 +395,7 @@ void AGameHandler::SetPieceRotation(int tetrominoIndex, int rotationIndex) {
 void AGameHandler::PlayBlockMoveSound() 
 {
 	audioComponent->Play();
+	placePiecesThisTetrominoe = 0;
 }
 
 

@@ -60,9 +60,7 @@ void ABasePiece::Tick(float DeltaTime)
 			} 
 			else if (currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
 			{
-				currentRow += 1;
-				gameHandler->PlayBlockMoveSound();
-
+				DownMovement();
 				currentTime = 0.0f;
 			}
 		}
@@ -73,7 +71,8 @@ void ABasePiece::DownMovement()
 {
 	if (!isPlaced) 
 	{
-		
+		currentRow += 1;
+		gameHandler->PlayBlockMoveSound();
 	}
 }
 
@@ -88,38 +87,43 @@ int ABasePiece::CheckPieceIndex()
 	{
 		if (gameHandler->pieceController->block[i]->isPlaced)
 		{
-			UE_LOG(LogTemp, Log, TEXT("Other Blocks are placed"));
+			UE_LOG(LogTemp, Log, TEXT("[%s] : [%d]"), *this->GetName(), i);
 			return 2;
 		}
-		
-		if (currentRow < 0 || currentColumn > 10)
-		{
-			UE_LOG(LogTemp, Log, TEXT("OOB"));
-			return 1;
-		}
-		else if (currentRow > 19 || currentColumn < 0)
-		{
-			UE_LOG(LogTemp, Log, TEXT("OOB"));
-			return 1;
-		} 
-		else if (currentRow == 19) 
-		{
-			UE_LOG(LogTemp, Log, TEXT("Row = 19"));
-			return 2;
-		}
-		else if (currentRow < 19 && gameHandler->playField[currentRow + 1][currentColumn].isPlaced) 
-		{
-			UE_LOG(LogTemp, Log, TEXT("Target Row is Occupied"));
-			return 2;
-		}
-		else { return 0; }
 	}
+		
+	if (currentRow < 0 || currentColumn > 10)
+	{
+		UE_LOG(LogTemp, Log, TEXT("OOB"));
+		return 1;
+	}
+	else if (currentRow > 19 || currentColumn < 0)
+	{
+		UE_LOG(LogTemp, Log, TEXT("OOB"));
+		return 1;
+	} 
+	else if (currentRow == 19) 
+	{
+		UE_LOG(LogTemp, Log, TEXT("Row = 19"));
+		return 2;
+	}
+	else if (currentRow < 19 && gameHandler->playField[currentRow + 1][currentColumn].isPlaced) 
+	{
+		UE_LOG(LogTemp, Log, TEXT("Target Row is Occupied"));
+		return 2;
+	}
+	else { return 0; }
+	
 
 	return 0;
 }
 
 void ABasePiece::PlaceBlock()
 {
-	
+	for (int i = 0; i < 4; i++)
+	{
+		gameHandler->pieceController->block[i]->isPlaced = true;
+		gameHandler->SetPositionActive(gameHandler->pieceController->block[i], gameHandler->pieceController->block[i]->currentRow, gameHandler->pieceController->block[i]->currentColumn);
+	}
 }
 
