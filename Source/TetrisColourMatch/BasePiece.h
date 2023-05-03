@@ -37,18 +37,17 @@ public:
 	UPROPERTY(EditAnywhere)
 	bool isPlaced = false;
 
+	bool bDoTick = false;
+
 	float currentTime;
 
-	UPROPERTY(EditAnywhere)
-		bool standardMovement = true;
+	bool standardMovement = true;
 
 	AGameHandler* gameHandler;
 
-	int CheckPieceIndex(FVector targetLocation);
+	int CheckPieceIndex();
 
 	void PlaceBlock();
-	
-	void StandardMovement();
 
 	void DownMovement();
 

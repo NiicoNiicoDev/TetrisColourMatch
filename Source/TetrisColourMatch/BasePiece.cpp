@@ -24,7 +24,6 @@ ABasePiece::ABasePiece()
 
 	currentRow = spawnRow;
 	currentColumn = spawnColumn;
-
 }
 
 // Called when the game starts or when spawned
@@ -41,67 +40,79 @@ void ABasePiece::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	FVector targetLocation = FVector(0, currentColumn * 100, 2000 - ((currentRow + 1) * 100));
-
-	if (currentRow < 0) 
-		return;
-
-	if (currentRow > 19)
-		return;
-
-	if (!isPlaced && !gameHandler->playField[currentRow + 1][currentColumn].isPlaced && currentRow < 19)
+	if (!gameHandler->bGameOver && bDoTick)
 	{
-		currentTime += DeltaTime;
+		FVector targetLocation = FVector(0, currentColumn * 100, 2000 - ((currentRow) * 100));
 
-		if (currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
-		{
-			if (!isPlaced)
-			{
-				DownMovement();
-			}
+		SetActorLocation(targetLocation);
 
-			currentTime = 0.0f;
-		}
-		else
+		if (currentRow < 0 || currentRow > 19)
+			return;
+
+		if (!isPlaced)
 		{
 			currentTime += DeltaTime;
-		}
+			if (CheckPieceIndex() == 2)
+			{
+				PlaceBlock();
 
-		if (CheckPieceIndex(targetLocation) == 0)
-			SetActorLocation(targetLocation);
+				return;
+			} 
+			else if (currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
+			{
+				currentRow += 1;
+				gameHandler->PlayBlockMoveSound();
+
+				currentTime = 0.0f;
+			}
+		}
 	}
 }
 
 void ABasePiece::DownMovement() 
 {
-	currentRow += 1;
-}
-
-//Standard downward movement for all pieces
-void ABasePiece::StandardMovement() 
-{
-	FVector targetLocation = FVector(0, currentColumn * 100, GetActorLocation().Z);
-
-	SetActorLocation(targetLocation);
-}
-
-int ABasePiece::CheckPieceIndex(FVector targetLocation)
-{
-	// Check if the piece is in the grid
-	if (currentRow < 0 || currentColumn > 10) 
+	if (!isPlaced) 
 	{
-		return 1;
+		
 	}
+}
+
+int ABasePiece::CheckPieceIndex()
+{
+	//return 0 = default return statement
+	//return 1 = Out of Bounds of playfield << This should never happen
+	//return 2 = This block or another in the tetromino has hit bottom of playfield or other block
+	//return 3 = Hit top of playfield thus ending the game
 	
-	//Check the gameHandler to see if the current row / column is occupied
-	if (currentRow == 19 || gameHandler->playField[currentRow + 1][currentColumn].isPlaced)
+	for (int i = 0; i < 4; i++)
 	{
-		for (size_t i = 0; i < 4; i++)
+		if (gameHandler->pieceController->block[i]->isPlaced)
 		{
-			gameHandler->pieceController->block[i]->PlaceBlock();
+			UE_LOG(LogTemp, Log, TEXT("Other Blocks are placed"));
+			return 2;
 		}
 		
-		return 2;
+		if (currentRow < 0 || currentColumn > 10)
+		{
+			UE_LOG(LogTemp, Log, TEXT("OOB"));
+			return 1;
+		}
+		else if (currentRow > 19 || currentColumn < 0)
+		{
+			UE_LOG(LogTemp, Log, TEXT("OOB"));
+			return 1;
+		} 
+		else if (currentRow == 19) 
+		{
+			UE_LOG(LogTemp, Log, TEXT("Row = 19"));
+			return 2;
+		}
+		else if (currentRow < 19 && gameHandler->playField[currentRow + 1][currentColumn].isPlaced) 
+		{
+			UE_LOG(LogTemp, Log, TEXT("Target Row is Occupied"));
+			return 2;
+		}
+		else { return 0; }
 	}
 
 	return 0;
@@ -109,8 +120,6 @@ int ABasePiece::CheckPieceIndex(FVector targetLocation)
 
 void ABasePiece::PlaceBlock()
 {
-	UE_LOG(LogTemp, Log, TEXT("Placed"));
-	gameHandler->SetPositionActive(this, currentRow, currentColumn);
-	isPlaced = true;
+	
 }
 

@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "PieceController.generated.h"
 
+
 class ABasePiece;
 class AGameHandler;
 
@@ -29,8 +30,18 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	
+	UPROPERTY(EditAnywhere)
+		float quickDropSpeed = 0.05f;
+
+	float previousDropSpeed = 0;
+	
 	void MoveRight();
 	void MoveLeft();
+	void RotateRight();
+	void RotateLeft();
+
+	void QuickDropPressed();
+	void QuickDropReleased();
 	
 	ABasePiece** block = new ABasePiece*[4];
 

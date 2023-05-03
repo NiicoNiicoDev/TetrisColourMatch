@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Engine.h"
+#include <map>
 #include "GameHandler.generated.h"
 
 class ABasePiece;
@@ -27,16 +28,56 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UAudioComponent* audioComponent;
+
+	UPROPERTY(EditAnywhere)
+		bool bGameOver;
+
+	UPROPERTY(EditAnywhere)
+		bool bRandomTetrominoes = true;
+	
+	UPROPERTY(EditAnywhere)
+	UMaterialInstance* ColoursArray[7];
+
+	enum colour 
+	{
+		red,
+		blue,
+		yellow,
+		green,
+		pink,
+		black,
+		white
+	};
+
 	struct pieceContainer
 	{
 		ABasePiece* piece = nullptr;
 		bool isPlaced = false;
+		colour Colour;
+	};
+
+	struct targetLocationInArray
+	{
+		int8 ColumnShift;
+		int8 RowShift;
+	};
+
+	struct RotationData
+	{
+		targetLocationInArray data[4];
 	};
 	
 	struct tetromino
 	{
+		FString TetrominoName;
+		int TetrominoIndex = 0;
 		int32 ColumnIndex[4];
 		int32 RowIndex[4];
+		colour Colour;
+		int currentRotation = 0;
+		
+		RotationData rotationData[4];
 
 		tetromino()
 		{
@@ -50,7 +91,19 @@ public:
 	};
 
 	UPROPERTY(EditAnywhere)
+		int TetToSpawn = 0;
+
+	UPROPERTY(EditAnywhere)
 	float moveDownFrequency = 1.0f;
+
+	UPROPERTY(EditAnywhere)
+	uint64 currentScore = 0;
+	
+	UPROPERTY(EditAnywhere)
+	uint32 totalLinesCleared = 0;
+
+	UPROPERTY(EditAnywhere)
+	uint8 currentLevel = 1;
 
 	APieceController* pieceController;
 
@@ -58,21 +111,44 @@ public:
 
 	tetromino tetrominoes[7];
 
+	tetromino currentTetrominoe;
+
 	UPROPERTY(EditAnywhere)
-	int placePiecesThisPiece = 0;
+	int placePiecesThisTetrominoe = 0;
+
+	UPROPERTY(EditAnywhere)
+		AActor* scoreText;
+
+	UTextRenderComponent* textComp;
 
 	void GenerateNewBlock();
 
 	void CheckFullRow();
 
-	void MovePlayfield();
+	void MovePlayfield(int rowsToMove, int rowIndexToMoveFrom);
 
 	void VerifyPlayfield();
 
+	void PlayBlockMoveSound();
+
 	void SetPositionActive(ABasePiece* piece, int row, int column);
+
+	void BlockShift(int columnShift, int rowShift);
 
 	ABasePiece** SpawnTetrominoe();
 
 	void CreateTetrominoes();
 
+	void SetPieceRotation(int tetrominoIndex, int rotationIndex);
+
+	bool CheckRotationLocations(targetLocationInArray locations[]);
+	
+	void InitalizeRotationArrays();
+
+	void UpdateScore(int linesCleared, int multiplier);
+
+	void CheckPieceDataMismatch();
+
+	void GameOver();
+		
 };
