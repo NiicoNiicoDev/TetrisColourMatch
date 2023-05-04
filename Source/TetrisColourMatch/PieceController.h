@@ -29,6 +29,9 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void BPGameOver(int Score, bool bGameOver);
 	
 	UPROPERTY(EditAnywhere)
 		float quickDropSpeed = 0.05f;

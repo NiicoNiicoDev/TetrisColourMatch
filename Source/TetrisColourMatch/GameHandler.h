@@ -125,7 +125,12 @@ public:
 	UPROPERTY(EditAnywhere)
 		AActor* scoreText;
 
-	UTextRenderComponent* textComp;
+	UPROPERTY(EditAnywhere)
+		AActor* levelText;
+
+	UTextRenderComponent* scoreTextComp;
+	
+	UTextRenderComponent* levelTextComp;
 
 	void GenerateNewBlock();
 

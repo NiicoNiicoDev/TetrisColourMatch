@@ -43,40 +43,55 @@ void ABasePiece::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	//If the game is not over
 	if (!gameHandler->bGameOver)
 	{
+		//Variable to store the target location that the block is intending to move to based on it's current row and column variables.
 		FVector targetLocation = FVector(0, currentColumn * 100, 2000 - ((currentRow) * 100));
 
+		//Set the block to its target position.
 		SetActorLocation(targetLocation);
 
+		//If the block extends the playfield on either the left or right side. Exit the function
 		if (currentRow < 0 || currentRow > 19)
 			return;
 
+		//If the block is not placed
 		if (!isPlaced)
 		{
+			//Increase the currentTime variable
 			currentTime += DeltaTime;
+			//compartive to the check piece index function which checks to see the current state of the block. These states are defined by integer return numbers and are noted in the CheckPieceIndex Function.
 			if (CheckPieceIndex() == 2)
 			{
+				//Set the bCanMoveDown boolean to false. //This stops the piece from moving vertically
 				bCanMoveDown = false;
+				//reset the current time Variable
 				currentTime = 0;
 
+				//If the player is fast dropping the current block. Do not allow them to slide the block, instead place it immediately.
 				if (gameHandler->bIsFastDrop) 
 				{
 					PlaceBlock();
 				}
-				else 
+				else //If the player is not fast dropping the block. Allow the player 1 / 10th of a second the move the current block left or right.
 				{
+					//Set the bCanMoveDown boolean to false. //This stops the piece from moving vertically
 					bCanMoveDown = false;
+					//increment the blockPlaceTimer variable.
 					blockPlaceTimer += DeltaTime;
 
+					//If the block places timer is equal to or greater than 0.1...
 					if (blockPlaceTimer >= 0.1) {
+						//Place the block and reset the timer.
 						PlaceBlock();
 						blockPlaceTimer = 0;
 					}
 				}	
-			} 
+			} // If the bCanMoveDown variable is true and currentTime variable is greater than the move down frequency and block in the row below is not occupied...
 			else if (bCanMoveDown && currentTime >= gameHandler->moveDownFrequency && gameHandler->playField[currentRow + 1][currentColumn].piece == nullptr)
 			{
+				//Call the down movement function and reset the timer.
 				DownMovement();
 				currentTime = 0.0f;
 			}
@@ -86,6 +101,7 @@ void ABasePiece::Tick(float DeltaTime)
 
 void ABasePiece::DownMovement() 
 {
+	//If the block is currently not placed. Increment the current row of the block and play a sound.
 	if (!isPlaced) 
 	{
 		currentRow += 1;
@@ -100,32 +116,34 @@ int ABasePiece::CheckPieceIndex()
 	//return 2 = This block or another in the tetromino has hit bottom of playfield or other block
 	//return 3 = Hit top of playfield thus ending the game
 	
+	//For each block comprising the tetrominoe...
 	for (int i = 0; i < 4; i++)
 	{
+		//Check if any other of the blocks comprising the tetrominoe have been placed, if so place this block. (check returns types key above)
 		if (gameHandler->pieceController->block[i]->isPlaced)
 		{
 			return 2;
 		}
 	}
-		
+	
+	//If the block has exceeded the left or right bounds of the playfield, return 1 (Out of Bounds)
 	if (currentRow < 0 || currentColumn > 10)
 	{
-		UE_LOG(LogTemp, Log, TEXT("OOB"));
 		return 1;
 	}
+	//If the block has exceeded the top or bottom bounds of the playfield, return 1 (Out of Bounds)
 	else if (currentRow > 19 || currentColumn < 0)
 	{
-		UE_LOG(LogTemp, Log, TEXT("OOB"));
 		return 1;
 	} 
+	//If the block is on the bottom row of the playfield, place the block
 	else if (currentRow == 19) 
 	{
-		UE_LOG(LogTemp, Log, TEXT("Row = 19"));
 		return 2;
 	}
+	//If the index in the playfield below this blocks current index contains a block, place this block.
 	else if (currentRow < 19 && gameHandler->playField[currentRow + 1][currentColumn].isPlaced) 
 	{
-		UE_LOG(LogTemp, Log, TEXT("Target Row is Occupied"));
 		return 2;
 	}
 	else { return 0; }
@@ -136,6 +154,7 @@ int ABasePiece::CheckPieceIndex()
 
 void ABasePiece::PlaceBlock()
 {
+	//Iterate through all 4 blocks comprising the tetrominoe and set their isPlaced boolean to true and call SetPosition active for all 4 blocks. (This is done so if any one of the 4 blocks collides with another block in the playfield. All 4 of the blocks are placed immediately.
 	for (int i = 0; i < 4; i++)
 	{
 		gameHandler->pieceController->block[i]->isPlaced = true;
